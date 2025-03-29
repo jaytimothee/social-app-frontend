@@ -9,20 +9,20 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { signIn } from "../services/authService"; // Firebase Authentication Service
 
 const SignInScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
-  const handleSignIn = () => {
-    // Basic validation for demo purposes
-    if (email === "user@example.com" && password === "password123") {
+  const handleSignIn = async () => {
+    try {
+      const user = await signIn(email, password);
+      Alert.alert("Success", `Welcome back, ${user.email}`);
       navigation.navigate("Home");
-    } else {
-      Alert.alert(
-        "Invalid Credentials",
-        "Please enter valid email and password."
-      );
+    } catch (error) {
+      Alert.alert("Login Failed", error.message);
     }
   };
 
@@ -51,6 +51,8 @@ const SignInScreen = ({ navigation }) => {
             placeholderTextColor="#6e6e6e"
             value={email}
             onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
           />
         </View>
         <View style={styles.inputField}>
@@ -74,13 +76,14 @@ const SignInScreen = ({ navigation }) => {
       <View style={styles.optionsContainer}>
         <View style={styles.rememberMeContainer}>
           <Switch
-            value={false}
+            value={rememberMe}
+            onValueChange={setRememberMe}
             trackColor={{ false: "#4d4d4d", true: "#1e90ff" }}
             thumbColor="white"
           />
           <Text style={styles.rememberMeText}>Remember Me</Text>
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")}>
           <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
         </TouchableOpacity>
       </View>
